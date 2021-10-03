@@ -158,7 +158,8 @@ class App extends React.Component {
                     renameListCallback={this.renameList}
                 />
                 <Workspace
-                    currentList={this.state.currentList} />
+                    currentList={this.state.currentList} 
+                />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
