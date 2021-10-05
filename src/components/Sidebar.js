@@ -23,7 +23,7 @@ export default class Sidebar extends React.Component {
                 </div>
                 <div id="sidebar-list">
                 {
-                    keyNamePairs.map((pair) => (
+                    keyNamePairs.map((pair,index) => (
                         <ListCard
                             key={pair.key}
                             keyNamePair={pair}
@@ -31,6 +31,7 @@ export default class Sidebar extends React.Component {
                             deleteListCallback={deleteListCallback}
                             loadListCallback={loadListCallback}
                             renameListCallback={renameListCallback}
+                            index={index}
                         />
                     ))
                 }

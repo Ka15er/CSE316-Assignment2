@@ -53,21 +53,19 @@ export default class Workspace extends React.Component {
         this.modi_index=index;
     }
 
-    handleLeave(event) {
+    handleLeave(index, event) {
         if (event.key === 'Enter') {
-            var newCurrent=this.props.currentList;
-            newCurrent.items[this.modi_index-1]=this.state.editvalue;
             this.setState({
-                text: newCurrent,
                 editActive: false,
             });
+            this.props.changeitem(index, event.target.value);
         }
     }
 
     render() {
         var items = []
         var i = 1
-        if(this.props.currentList!=null){
+        if(this.props.currentList!=null)
             for(var key in this.props.currentList.items)
             {
                 if(i===this.modi_index && this.state.editActive) {
@@ -81,8 +79,8 @@ export default class Workspace extends React.Component {
                                     id={'item-text-input-'+i} 
                                     key={'item-text-input-'+i}
                                     value={this.state.editvalue}
-                                    onKeyDown={this.handleLeave}
-                                    onChange={this.handleChange}/> 
+                                    onKeyDown={this.handleLeave.bind(this,i)}
+                                    onChange={this.handleChange} /> 
                            </div>);
                 } else {
                 items.push(<div id={'item'+i} key={i} draggable="true"
@@ -96,7 +94,7 @@ export default class Workspace extends React.Component {
                 }
                 i = i+1;
             }
-        }
+
         return (
             <div id="top5-workspace">
                 <div id="workspace-edit">

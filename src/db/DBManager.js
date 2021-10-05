@@ -25,6 +25,10 @@ export default class DBManager {
         this.mutationUpdateList(list);
     }
 
+    mutationDeleteList = (key) => {
+        localStorage.removeItem("top5-list-" + key);
+    }
+
     mutationUpdateList = (list) => {
         // AND FLOW THOSE CHANGES TO LOCAL STORAGE
         let listString = JSON.stringify(list);
@@ -33,6 +37,9 @@ export default class DBManager {
     
     mutationUpdateSessionData = (sessionData) => {
         let sessionDataString = JSON.stringify(sessionData);
-        localStorage.setItem("top5-data", sessionDataString);
+        if(sessionData.counter==0)
+            localStorage.removeItem("top5-data");
+        else
+            localStorage.setItem("top5-data", sessionDataString);
     }
 }

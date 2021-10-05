@@ -1,4 +1,6 @@
 import React from 'react';
+import jsTPS from "./jsTPS.js"
+import ChangeItem_Transaction from "./ChangeItem_Transaction.js"
 import './App.css';
 
 // IMPORT DATA MANAGEMENT AND TRANSACTION STUFF
@@ -17,6 +19,8 @@ class App extends React.Component {
 
         // THIS WILL TALK TO LOCAL STORAGE
         this.db = new DBManager();
+        this.deletelistname="";
+        this.tps = new jsTPS();
 
         // GET THE SESSION DATA FROM OUR DATA MANAGER
         let loadedSessionData = this.db.queryGetSessionData();
@@ -112,6 +116,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            this.tps.clearAllTransactions();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -124,18 +129,68 @@ class App extends React.Component {
             // ANY AFTER EFFECTS?
         });
     }
-    deleteList = () => {
+    deleteList = (index, pair) => {
+        this.deletelistindex=index;
+        this.deletelistpairindex=pair.key;
+        this.deletelistname=pair.name;
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
         this.showDeleteListModal();
     }
+
+    // confirmed, ready to delete
+    deleteList_real = () => {
+        this.hideDeleteListModal();
+        this.state.sessionData.keyNamePairs.splice(this.deletelistindex,1);
+        this.state.sessionData.counter=this.state.sessionData.counter-1
+        this.db.mutationUpdateSessionData(this.state.sessionData);
+        this.db.mutationDeleteList(this.deletelistpairindex);
+        this.setState({
+        });
+    }
+
+    changeitem(index, newname) {
+        var newlist = this.state.currentList;
+        let oldText = newlist.items[index-1];
+        let transaction = new ChangeItem_Transaction(this, index-1, oldText, newname);
+        this.tps.addTransaction(transaction);
+        //newlist.items[index-1]=newname;
+        //this.db.mutationUpdateList(newlist);
+        this.setState({
+            currentList: newlist
+        });
+    }
+
+    changeitemname(index, name) {
+        this.state.currentList.items[index]=name;
+        this.db.mutationUpdateList(this.state.currentList);
+console.log("wuwuwuwu",this.state.currentList);
+        this.setState({
+        });
+    }
+
+    undo = ()=> {
+        if (this.tps.hasTransactionToUndo()) {
+            this.tps.undoTransaction();
+        }
+    }
+
+    redo = ()=> {
+        if (this.tps.hasTransactionToRedo()) {
+            this.tps.doTransaction();
+        }
+    }
+
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
     showDeleteListModal() {
         let modal = document.getElementById("delete-modal");
         modal.classList.add("is-visible");
+        this.setState({
+        });
+        
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
     hideDeleteListModal() {
@@ -147,6 +202,8 @@ class App extends React.Component {
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
+                    redo={this.redo}
+                    undo={this.undo}
                     closeCallback={this.closeCurrentList} />
                 <Sidebar
                     heading='Your Lists'
@@ -159,11 +216,14 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList} 
+                    changeitem = {this.changeitem.bind(this)}
                 />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
                     hideDeleteListModalCallback={this.hideDeleteListModal}
+                    deleteListRealCallback={this.deleteList_real}
+                    deletelistname = {this.deletelistname}
                 />
             </div>
         );

@@ -24,9 +24,9 @@ export default class ListCard extends React.Component {
         }
         this.props.loadListCallback(listKey);
     }
-    handleDeleteList = (event) => {
+    handleDeleteList = (index,pairindex, event) => {
         event.stopPropagation();
-        this.props.deleteListCallback(this.props.keyNamePair);
+        this.props.deleteListCallback(index, pairindex);
     }
     handleToggleEdit = (event) => {
         this.setState({
@@ -44,14 +44,12 @@ export default class ListCard extends React.Component {
     handleBlur = () => {
         let key = this.props.keyNamePair.key;
         let textValue = this.state.text;
-        console.log("ListCard handleBlur: " + textValue);
         this.props.renameListCallback(key, textValue);
         this.handleToggleEdit();
     }
 
     render() {
-        const { keyNamePair, selected } = this.props;
-
+        const { keyNamePair, selected, index } = this.props;
         if (this.state.editActive) {
             return (
                 <input
@@ -77,16 +75,16 @@ export default class ListCard extends React.Component {
                     onClick={this.handleClick}
                     className={'list-card ' + selectClass}>
                     <span
-                        id={"list-card-text-" + keyNamePair.key}
+                        id={"list-card-text-" + index}
                         key={keyNamePair.key}
                         className="list-card-text">
                         {keyNamePair.name}
                     </span>
                     <input
                         type="button"
-                        id={"delete-list-" + keyNamePair.key}
+                        id={"delete-list-" + index}
                         className="list-card-button"
-                        onClick={this.handleDeleteList}
+                        onClick={this.handleDeleteList.bind(this,index,keyNamePair)}
                         value={"\u2715"} />
                 </div>
             );
