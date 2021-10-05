@@ -166,7 +166,6 @@ class App extends React.Component {
     changeitemname(index, name) {
         this.state.currentList.items[index]=name;
         this.db.mutationUpdateList(this.state.currentList);
-console.log("wuwuwuwu",this.state.currentList);
         this.setState({
         });
     }
@@ -197,9 +196,47 @@ console.log("wuwuwuwu",this.state.currentList);
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+
+
+    componentDidMount(){
+        document.addEventListener("keydown", this.onKeyDown);
+        document.addEventListener("keyup", this.onKeyUp);
+    }
+
+    componentWillUnmount(){
+        document.removeEventListener("keydown", this.onKeyDown);
+        document.removeEventListener("keyup", this.onKeyUp);
+    }
+
+    onKeyDown = (event) => {
+        switch(event.keyCode) {
+            case 17:  // control
+                this.controlpressed=true;
+                console.log("process keyDown", event.charCode, event.keyCode, event.key);
+                break
+            case 90: // z
+                if(this.controlpressed)
+                    this.undo();
+                break;
+            case 89: // y
+                if(this.controlpressed)
+                    this.redo();
+                // console.log("process ctrl-keyDown", event.charCode, event.keyCode, event.key);
+                break;
+        }
+    }
+
+    onKeyUp = (event) => {
+        switch(event.keyCode) {
+            case 17: // control
+                this.controlpressed=false;
+                break;
+        }   
+    } 
+
     render() {
         return (
-            <div id="app-root">
+            <div id="app-root"> 
                 <Banner 
                     title='Top 5 Lister'
                     redo={this.redo}
